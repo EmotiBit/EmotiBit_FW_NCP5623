@@ -27,13 +27,13 @@ class NCP5623
         void begin(TwoWire &wirePort = Wire);
 
 
-        void setCurrent(uint8_t iled);
+        void setCurrent(uint8_t iled = 31);
 
         /*
         * Set or unSet an LED
         * Inputs: Led Position and Intensity
         */
-        void setLED(uint8_t ledPosition = -1, uint8_t intensity = 255);
+        void setLED(uint8_t ledPosition = -1, uint8_t intensity = 31);
 
 
     private:
