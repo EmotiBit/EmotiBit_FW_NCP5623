@@ -30,6 +30,9 @@ void NCP5623::setLED(uint8_t ledPosition, uint8_t intensity) {
             break;
     }
     //intensity = intensity>>3;
+	// bounds check
+	intensity = (intensity > 31) ? 31 : intensity;
+	intensity = (intensity < 0) ? 0 : intensity;
     _i2cPort->beginTransmission(_deviceAddress);
     _i2cPort->write(((reg & 0x7)<<5)|(intensity & 0x1f)); // rrrvvvvv
     _i2cPort->endTransmission();
