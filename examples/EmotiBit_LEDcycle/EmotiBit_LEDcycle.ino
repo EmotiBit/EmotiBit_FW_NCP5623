@@ -1,3 +1,9 @@
+/*
+This code example can be used to run/test the onBoard Led's on the EmotiBit.
+The code cycles through the RED, BLUE and YELLOW led's.
+It uses the Alternate I2C, which is used by default on the EmotiBit to communicate with teh NCP5623 led driver.
+*/
+
 #include "EmotiBit_NCP5623.h"
 
 TwoWire myWire(&sercom1, 11, 13);
@@ -5,8 +11,10 @@ NCP5623 led;
 
 void setup() {
 	Serial.begin(9600);
+	// To enable the MOSFET on the EmotiBit
 	pinMode(6, OUTPUT);
 	digitalWrite(6, LOW);
+	Serial.println("Send a character to start the example.");
 	// waits for input in seial monitor
 	while(!Serial.available());
 	// If using Native I2C
@@ -20,11 +28,14 @@ void setup() {
 	myWire.setClock(100000);
 	led.begin(myWire);
 	Serial.println("exiting Setup");
+	// uncomment to Enable debugging messages
 	//led.enableDebugging();
+	// set the current output level
 	led.setCurrent(26);
 }
 
 void loop() {	
+	// Setting LED #2 to the PWM level 2
 	led.setLEDpwm(2, 2);
 	for (int ledPos = 1; ledPos < 4; ledPos++) {
 		Serial.print("LED:\t");
