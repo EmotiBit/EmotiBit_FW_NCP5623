@@ -6,9 +6,15 @@ NCP5623::NCP5623() {}
 For setting the I2C port and dvice address of the chip.
 It also sets the LED pwm values and Iout current value
 */
-void NCP5623::begin(TwoWire &wirePort) {
+bool NCP5623::begin(TwoWire &wirePort) {
     _i2cPort = &wirePort;
     _deviceAddress = NCP5623_DEFAULT_ADDR;
+
+    // Checking if sensor exists on the I2C line
+    _i2cPort->beginTransmission(_deviceAddress);
+	_i2cPort->write(0x00);
+	if (_i2cPort->endTransmission())
+		return false;
 	// Set the Vout Current to a value before using PWM on the led's
     setCurrent(30);
 	// Set the LED to a maximum 
@@ -19,6 +25,7 @@ void NCP5623::begin(TwoWire &wirePort) {
 	setLED(2, false);
 	setLED(3, false);
 
+	return true;
 }
 
 /*

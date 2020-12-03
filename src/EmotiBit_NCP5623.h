@@ -24,7 +24,7 @@ class NCP5623
         /*
         * Initializes the I2C interface(user defined, but Wire by Default)
         */
-        void begin(TwoWire &wirePort = Wire);
+        bool begin(TwoWire &wirePort = Wire);
 
 
         void setCurrent(uint8_t iled = 31);
