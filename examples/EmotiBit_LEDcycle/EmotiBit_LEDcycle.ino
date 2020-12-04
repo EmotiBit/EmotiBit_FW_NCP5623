@@ -14,9 +14,13 @@ void setup() {
 	// To enable the MOSFET on the EmotiBit
 	pinMode(6, OUTPUT);
 	digitalWrite(6, LOW);
-	Serial.println("Send a character to start the example.");
+	uint32_t t = millis();
+	uint32_t timeout = 5000;
+	while(!Serial)
+	{
+		if (millis() - t > timeout) break;
+	}
 	// waits for input in seial monitor
-	while(!Serial.available());
 	// If using Native I2C
 	// Wire.begin();
 	// Wire.setClock(100000);
@@ -26,7 +30,17 @@ void setup() {
 	pinPeripheral(11, PIO_SERCOM);
 	pinPeripheral(13, PIO_SERCOM);
 	myWire.setClock(100000);
-	led.begin(myWire);
+	Serial.println("Initializing sensor on the I2C line");
+	if(!led.begin(myWire))
+	{
+		Serial.println("LED Driver not found on the I2C line");
+		while(1);
+	}
+	else
+	{
+		Serial.println("LED driver Found. Begining execution");
+	}
+	
 	Serial.println("exiting Setup");
 	// uncomment to Enable debugging messages
 	//led.enableDebugging();
