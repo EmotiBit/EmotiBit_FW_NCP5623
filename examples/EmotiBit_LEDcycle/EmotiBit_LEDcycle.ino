@@ -46,11 +46,14 @@ void setup() {
 	//led.enableDebugging();
 	// set the current output level
 	led.setCurrent(26);
+	led.setLEDpwm((uint8_t)NCP5623::LED::LED1, 8);
+	led.setLEDpwm((uint8_t)NCP5623::LED::LED2, 8);
+	led.setLEDpwm((uint8_t)NCP5623::LED::LED3, 8);
 }
 
 void loop() {	
 	// Setting LED #2 to the PWM level 2
-	led.setLEDpwm(2, 2);
+	//led.setLEDpwm(2, 2);
 	for (int ledPos = 1; ledPos < 4; ledPos++) {
 		Serial.print("LED:\t");
 		Serial.println(ledPos);
