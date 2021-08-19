@@ -32,17 +32,17 @@ bool NCP5623::begin(TwoWire &wirePort) {
 Function returns the state of the LED at the requested position
 */
 bool NCP5623::getLED(uint8_t ledPosition) {
-	return _stateLed[--ledPosition];
+	return _stateLed[ledPosition - 1];
 }
 
 /*
 Function to set an a LED on or off
 */
 void NCP5623::setLED(uint8_t ledPosition, bool state) {
-	if (_stateLed[--ledPosition] != state) {
-		_ledChanged[--ledPosition] = true;
+	if (_stateLed[ledPosition - 1] != state) {
+		_ledChanged[ledPosition - 1] = true;
 	}
-	_stateLed[--ledPosition] = state;
+	_stateLed[ledPosition - 1] = state;
 }
 
 // send LED state & PWM value to LED controller chip
@@ -52,8 +52,8 @@ void NCP5623::send() {
 		if (_ledChanged[i]) {
 			reg = NCP5623_REG_CHANNEL_BASE + i;
 			uint8_t val;
-			if (_stateLed[i + 1]) { // Switch ON led based on set pwm level 
-				val = ((reg & 0x7) << 5) | (getLEDpwm(ledPosition) & 0x1F);
+			if (_stateLed[i]) { // Switch ON led based on set pwm level 
+				val = ((reg & 0x7) << 5) | (getLEDpwm(i + 1) & 0x1F);
 			}
 			else { // switch OFF led
 				val = (reg & 0x7) << 5;
@@ -81,11 +81,11 @@ Function sets the PWM value for a led position
 void NCP5623::setLEDpwm(uint8_t ledPosition, uint8_t pwm_val) {
 	pwm_val = (pwm_val > 31) ? 31 : pwm_val;
 	pwm_val = (pwm_val < 0) ? 0 : pwm_val;
-	if (_pwmValLed[--ledPosition] != pwm_val)
+	if (_pwmValLed[ledPosition - 1] != pwm_val)
 	{
-		_ledChanged[--ledPosition] = true;
+		_ledChanged[ledPosition - 1] = true;
 	}
-	_pwmValLed[--ledPosition] = pwm_val;
+	_pwmValLed[ledPosition - 1] = pwm_val;
 }
 
 /*
