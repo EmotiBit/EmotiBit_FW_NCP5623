@@ -13,27 +13,27 @@ class NCP5623
         //Constructor
 		NCP5623();
         
-        /*
-        * Enum for Identifying which LED is switched ON 
-        */
-        typedef enum{
-            LED1 = 1,
-            LED2,
-            LED3,
-        }LED;
-        /*
-        * Initializes the I2C interface(user defined, but Wire by Default)
-        */
-        bool begin(TwoWire &wirePort = Wire);
+    /*
+    * Enum for Identifying which LED is switched ON 
+    */
+    typedef enum{
+        LED1 = 1, // ToDo: make LED numbering start with zero  
+        LED2,
+        LED3,
+    }LED;
+    /*
+    * Initializes the I2C interface(user defined, but Wire by Default)
+    */
+    bool begin(TwoWire &wirePort = Wire);
 
 
-        void setCurrent(uint8_t iled = 31);
+    void setCurrent(uint8_t iled = 31);
 
-        /*
-        * Set or unSet an LED
-        * Inputs: Led Position and Intensity
-        */
-        void setLED(uint8_t ledPosition = -1, bool state = false);
+    /*
+    * Set or unSet an LED
+    * Inputs: Led Position and Intensity
+    */
+    void setLED(uint8_t ledPosition = -1, bool state = false);
 		bool getLED(uint8_t ldePosition = -1);
 		uint8_t getLEDpwm(uint8_t ledPosition);
 		void setLEDpwm(uint8_t ledPosition, uint8_t pwm_val);
@@ -44,15 +44,12 @@ class NCP5623
         uint8_t _deviceAddress;
         TwoWire *_i2cPort;
 		bool _stateLed[NCP_5623_NUM_LED];
-		//bool _stateLed1;
-		//bool _stateLed2;
-		//bool _stateLed3;
+		bool _ledChanged[NCP_5623_NUM_LED] = { true, true, true };
 		uint8_t _pwmValLed[NCP_5623_NUM_LED];
-		//uint8_t _pwmValLed1;
-		//uint8_t _pwmValLed2;
-		//uint8_t _pwmValLed3;
 		Stream *_debugPort; //The stream to send debug messages to if enabled
 		boolean _printDebug = false; //Flag to print debugging variables
+
+		void send(); // send LED state & PWM value to LED controller chip
 
 };
 

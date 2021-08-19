@@ -7,11 +7,11 @@ For setting the I2C port and dvice address of the chip.
 It also sets the LED pwm values and Iout current value
 */
 bool NCP5623::begin(TwoWire &wirePort) {
-    _i2cPort = &wirePort;
-    _deviceAddress = NCP5623_DEFAULT_ADDR;
+  _i2cPort = &wirePort;
+  _deviceAddress = NCP5623_DEFAULT_ADDR;
 
-    // Checking if sensor exists on the I2C line
-    _i2cPort->beginTransmission(_deviceAddress);
+  // Checking if sensor exists on the I2C line
+  _i2cPort->beginTransmission(_deviceAddress);
 	_i2cPort->write(0x00);
 	if (_i2cPort->endTransmission())
 		return false;
@@ -29,47 +29,43 @@ bool NCP5623::begin(TwoWire &wirePort) {
 }
 
 /*
-Fucntion returns the state of the LED at the requested position
+Function returns the state of the LED at the requested position
 */
 bool NCP5623::getLED(uint8_t ledPosition) {
-
 	return _stateLed[--ledPosition];
 }
 
 /*
-Fucntion to set and reset a LED.
-The LED is set to the defined PWM value.
+Function to set an a LED on or off
 */
 void NCP5623::setLED(uint8_t ledPosition, bool state) {
-    uint8_t reg;
-	_stateLed[ledPosition - 1] = state;
-    switch(ledPosition){
-        case LED1:
-            reg = NCP5623_REG_CHANNEL_BASE + (ledPosition - 1);
-			break;
-        case LED2:
-            reg = NCP5623_REG_CHANNEL_BASE + (ledPosition - 1);
-			break;
-        case LED3:
-            reg = NCP5623_REG_CHANNEL_BASE + (ledPosition - 1);
-            break;
-        default:
-            //TODO: INVALID case
-            break;
-    }
-	
-	if (!state) {// switch OFF led
-		_i2cPort->beginTransmission(_deviceAddress);
-		_i2cPort->write((reg & 0x7) << 5); 
-		_i2cPort->endTransmission();
+	if (_stateLed[--ledPosition] != state) {
+		_ledChanged[--ledPosition] = true;
 	}
-	else { // Switch ON led based on set pwm level
-		_i2cPort->beginTransmission(_deviceAddress);
-		_i2cPort->write( ((reg & 0x7) << 5) | (getLEDpwm(ledPosition) & 0x1F));
-		_i2cPort->endTransmission();
-	}
-
+	_stateLed[--ledPosition] = state;
 }
+
+// send LED state & PWM value to LED controller chip
+void NCP5623::send() {
+  uint8_t reg;
+	for (uint8_t i = 0; i < NCP_5623_NUM_LED; i++){
+		if (_ledChanged[i]) {
+			reg = NCP5623_REG_CHANNEL_BASE + i;
+			uint8_t val;
+			if (_stateLed[i + 1]) { // Switch ON led based on set pwm level 
+				val = ((reg & 0x7) << 5) | (getLEDpwm(ledPosition) & 0x1F);
+			}
+			else { // switch OFF led
+				val = (reg & 0x7) << 5;
+			}
+			_i2cPort->beginTransmission(_deviceAddress);
+			_i2cPort->write(val);
+			_i2cPort->endTransmission();
+		}
+	}
+}
+
+
 
 /*
 Function returns the pwm value for a LED position.
@@ -85,6 +81,10 @@ Function sets the PWM value for a led position
 void NCP5623::setLEDpwm(uint8_t ledPosition, uint8_t pwm_val) {
 	pwm_val = (pwm_val > 31) ? 31 : pwm_val;
 	pwm_val = (pwm_val < 0) ? 0 : pwm_val;
+	if (_pwmValLed[--ledPosition] != pwm_val)
+	{
+		_ledChanged[--ledPosition] = true;
+	}
 	_pwmValLed[--ledPosition] = pwm_val;
 }
 
@@ -92,6 +92,7 @@ void NCP5623::setLEDpwm(uint8_t ledPosition, uint8_t pwm_val) {
 Function sets the MAX output current.
 */
 void NCP5623::setCurrent(uint8_t iled) {
+	// Todo: make current setting asyncronous
     iled = (iled>30)?30:iled;
     _i2cPort->beginTransmission(_deviceAddress);
     _i2cPort->write(((NCP5623_REG_ILED&0x7)<<5)|(iled&0x1f)); // rrrvvvvv
