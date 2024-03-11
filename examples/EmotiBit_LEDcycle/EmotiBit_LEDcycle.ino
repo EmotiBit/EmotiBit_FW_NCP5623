@@ -11,9 +11,14 @@ NCP5623 led;
 
 void setup() {
 	Serial.begin(9600);
-	// To enable the MOSFET on the EmotiBit
+  
+	// Enable the EN_VDD pin on the EmotiBit
+  // See https://github.com/EmotiBit/EmotiBit_Docs/tree/master/hardware_files
+  // HW V3+ requires pin to be set high
 	pinMode(6, OUTPUT);
-	digitalWrite(6, LOW);
+	digitalWrite(6, HIGH);
+  
+  
 	uint32_t t = millis();
 	uint32_t timeout = 5000;
 	while(!Serial)
@@ -56,8 +61,12 @@ void loop() {
 	//led.setLEDpwm(2, 2);
 	for (int ledPos = 1; ledPos < 4; ledPos++) {
 		Serial.print("LED:\t");
-		Serial.println(ledPos);
-		led.setLED(ledPos, !led.getLED(ledPos));
+		Serial.print(ledPos);
+    Serial.print("\t");
+    bool state = !led.getLED(ledPos);
+    led.send();
+    Serial.println(state);
+		led.setLED(ledPos, state);
 		delay(500);
 	}
 	
