@@ -1,7 +1,8 @@
 #include <Wire.h>
 #include "Arduino.h"
 #include "wiring_private.h"
-#define NCP5623_DEFAULT_ADDR 0x38
+#define NCP5623_B_DEFAULT_ADDR 0x38  // default addr for variant B
+#define NCP5623_C_DEFAULT_ADDR 0x39  // default addr for variant C
 
 #define NCP5623_REG_ILED 1
 #define NCP5623_REG_CHANNEL_BASE 2
@@ -24,7 +25,7 @@ public:
 	/*
 	* Initializes the I2C interface(user defined, but Wire by Default)
 	*/
-	bool begin(TwoWire &wirePort = Wire);
+	bool begin(TwoWire &wirePort = Wire, uint8_t i2cAddr = NCP5623_B_DEFAULT_ADDR);
 
 
 	void setCurrent(uint8_t iled = 31);
